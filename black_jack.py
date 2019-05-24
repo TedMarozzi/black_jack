@@ -58,7 +58,7 @@ def draw_deck_border(deck):
 
 def draw_deck():
     # This is the back of the deck
-    deck = Image(Point(win.getWidth()/2, win.getHeight()/4), "images\deck.png")
+    deck = Image(Point(win.getWidth()/2, win.getHeight()/4), "images/deck.png")
     deck.draw(win)
     return deck
 
