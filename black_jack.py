@@ -2,11 +2,12 @@
 # Name: Edward (Ted) Marozzi
 # Student Number: 910193
 # Date last modified: 21/05/2019
-# Description: A simplified gui black jack game, open and read "README.md"
+# Description: A simplified gui black jack game, open and read "README.txt"
 #   for more the rules. This program was created for the mini project in
-#   COMP10003 (Media Computation).
+#   COMP10003 (Media Computation) at the University of Melbourne.
+#
+# Images sourced from https://opengameart.org/
 ###############################################################################
-
 # Graphical objects required
 from graphics import Image, GraphWin, Point, Rectangle, Text, color_rgb
 from os import listdir
@@ -90,12 +91,14 @@ def reveal_card(card_images, back_of_card):
     back_of_card.undraw()
     rand_card.draw(win)
 
+    # Reads the string on the card name to obtain the value
     val = get_card_val(rand_card_dir)
 
     return rand_card, val
 
 
 def move_card_down(player):
+
     border = 150
     back_of_card = Image(
         Point(win.getWidth()/2, win.getHeight()/4), "deck.png")
@@ -110,7 +113,6 @@ def move_card_down(player):
             back_of_card.move(0, 1)
 
     return back_of_card
-
 
 def move_card_across(cards_in_hand, rand_card):
 
@@ -147,11 +149,12 @@ def init_scores_text(player):
         total_text.draw(win)
     return total_text
 
-
+# Draws the hold button
 def draw_hold_button():
+    # hold button points
     hold_a = Point(win.getWidth()/6 - 100, 200)
-
     hold_b = Point(hold_a.getX() + 200, hold_a.getY() + 100)
+
 
     hold_button = Rectangle(hold_a, hold_b)
 
@@ -159,11 +162,14 @@ def draw_hold_button():
     hold_button.setOutline("black")
     hold_button.setWidth(5)
 
+    # Obtains the center point of the hold button
     center_hold_button = Point(0.5*(hold_a.getX() + hold_b.getX()),
                                0.5*(hold_a.getY() + hold_b.getY()))
 
+    # Text class
     hold_text = Text(center_hold_button, "Hold")
 
+    # Style the text
     hold_text.setFace("helvetica")
     hold_text.setSize(26)
     hold_text.setStyle("bold")
@@ -174,7 +180,7 @@ def draw_hold_button():
 
     return hold_a, hold_b
 
-
+# Creates the text for the number of dealer wins
 def init_ai_wins_text(num_ai_wins):
     ai_wins_point = Point(win.getWidth()*5/6, win.getHeight()/3 + 50)
     ai_wins_text = Text(ai_wins_point, "Dealer wins:\n" + str(num_ai_wins))
@@ -186,7 +192,7 @@ def init_ai_wins_text(num_ai_wins):
 
     ai_wins_text.draw(win)
 
-
+# Creates the text for the number of dealer wins
 def init_player_wins_text(num_player_wins):
     player_wins_point = Point(win.getWidth()/6, win.getHeight()/3 + 50)
     player_wins_text = (Text(player_wins_point, "Player wins:\n" +
@@ -199,20 +205,27 @@ def init_player_wins_text(num_player_wins):
 
     player_wins_text.draw(win)
 
-
+# Updates the scores after each game
 def update_wins_text(player_wins_text, num_player_wins, ai_wins_text, num_ai_wins):
     ai_wins_text.setText("Dealer wins:\n" + str(num_ai_wins))
     player_wins_text.setText("Player wins:\n" + str(num_player_wins))
 
-
+# Used to style some text a couple of times
 def style_text(text):
-
     text.setFace("helvetica")
     text.setSize(30)
     text.setStyle("bold")
 
     return text
 
+def game_over_text():
+
+    center = Point(win.getWidth()/2, win.getHeight()/2)
+    game_over_text = Text(center, 
+        "Game Over!\nThank you for playing, This window will terminate in 5 seconds.")
+    style_text(game_over_text)
+    game_over_text.draw(win)
+    
 
 ###############################################################################
 # Functions responsible for black jack game mechanics
@@ -228,7 +241,7 @@ def create_card_list():
     card_images = sorted(card_images)
     return card_images
 
-
+# Checks if deck was clicked on returns bool
 def clicked_on_deck(click_point, deck):
     x_min = deck.getAnchor().getX() - deck.getWidth()/2
     x_max = deck.getAnchor().getX() + deck.getWidth()/2
@@ -241,7 +254,7 @@ def clicked_on_deck(click_point, deck):
 
     return is_button_clicked(click_point, top_left, bottom_right)
 
-
+# Can be used to check if a rectangle is clicked on
 def is_button_clicked(click_point, point_a, point_b):
 
     if (click_point.getX() >= point_a.getX()
@@ -253,12 +266,14 @@ def is_button_clicked(click_point, point_a, point_b):
 
     return False
 
-
+# Extracts the value of the card of of the directory string
 def get_card_val(rand_card_dir):
+
+    # Cards 2 to 10 assigned.
     for i in range(2, 11):
         if str(i) in rand_card_dir:
             rand_card_val = i
-
+    # Ace, jack, queen, king
     if "ace" in rand_card_dir:
         rand_card_val = 11
     elif ("jack" in rand_card_dir or "queen" in rand_card_dir or
@@ -267,7 +282,7 @@ def get_card_val(rand_card_dir):
 
     return rand_card_val
 
-
+# Updates the value of each players cards
 def update_total_val(total_text, total_val, player):
     if player == "ai":
         total_text.setText(
@@ -276,13 +291,14 @@ def update_total_val(total_text, total_val, player):
         total_text.setText("Current value of your cards:\n" + str(total_val))
 
     return total_text
+
 # If drawing an ace takes the score over 21 it is defaulted to 1 instead of 11
 def ace_correction(total_val, val):
     if val == 11 and total_val > 21:
         return total_val - 10
     return total_val
 
-
+# When a card is clicked this function runs, revealling and moving a card
 def card_clicked(click_point, cards_in_hand, total_text, total_val, deck, card_images):
 
     if click_point != None and clicked_on_deck(click_point, deck) == True:
@@ -301,7 +317,7 @@ def card_clicked(click_point, cards_in_hand, total_text, total_val, deck, card_i
 
     return cards_in_hand, total_val
 
-
+# When its the players turn the function loops
 def player_loop(deck, card_images):
 
     hold_a, hold_b = draw_hold_button()
@@ -314,6 +330,9 @@ def player_loop(deck, card_images):
     time_last_clicked = time.time()
     time_since_clicked = None
 
+
+    # Several different things break this loop such as a time out or hold button 
+    #   pressed
     while True:
         
         # Gets click
@@ -334,6 +353,7 @@ def player_loop(deck, card_images):
                                                 and total_val != 0):
             return total_val
 
+        # If player goes over 21 break loop, they lost
         if total_val > 21:
             center = Point(win.getWidth()/2, win.getHeight()/2)
             bust_text = Text(center, "You went bust!\nClick anywhere to play again")
@@ -355,44 +375,47 @@ def player_loop(deck, card_images):
 
     total_text.undraw()
 
-
-
 def ai_loop(deck, card_images, player_val):
     ai_val = 0
     cards_in_hand = 0
 
     total_text = init_scores_text("ai")
 
+    # Perhaps could add a player/ dealer reaches 3 then end as its best of 5
     if player_val == False:
         return False
 
+    # While no one has won or lost this loop runs
     while ai_val < 21 and ai_val <= player_val:
 
         back_of_card = move_card_down("ai")
         rand_card, val = reveal_card(card_images, back_of_card)
 
+        # Use to position the cards
         cards_in_hand += 1
 
         move_card_across(cards_in_hand, rand_card)
         ai_val = ai_val + val
 
+        # If an ace drawn makes player/dealer go bust the ace val is converted to 1
         ai_val = ace_correction(ai_val, val)
 
-        if ai_val > 21 and val == 1:
-            ai_val = ai_val - 10
+        
 
         total_text = update_total_val(total_text, ai_val, "ai")
 
+        # Ai chooses to draw if they get equal scores over 14
         if ai_val >= 15 and ai_val == player_val:
             break
 
     center = Point(win.getWidth()/2, win.getHeight()/2)
 
+    # Determins winner
     did_player_win = determine_winner(center, total_text, player_val, ai_val)
 
     return did_player_win
 
-
+# Determines and displayes winner
 def determine_winner(center, total_text, player_val, ai_val):
     if ai_val > player_val and ai_val <= 21:
         lost_text = Text(center, "You Lost\nClick anywhere to play again.")
@@ -459,12 +482,9 @@ def best_of_five(num_player_wins, num_ai_wins):
         init_player_wins_text(num_player_wins)
         init_ai_wins_text(num_ai_wins)
 
-################################################################################
-# Main
-################################################################################
-if __name__ == "__main__":
-    # Create window, 
-    win = create_window()
+
+def main():
+    
 
     # Set scores to 0 - 0
     num_ai_wins = 0
@@ -477,6 +497,19 @@ if __name__ == "__main__":
     # Start the best of five game loops
     best_of_five(num_player_wins, num_ai_wins)
 
-    # Enables users to see the final score after the 5 games are played
-    for timer in range(0,1):
-        time.sleep(10)
+    # Enables users to see the final score after the 10 games are played
+    # Should add text to let user know game is being terminated automatically
+    game_over_text()
+    time.sleep(10)
+    win.close()
+
+################################################################################
+# Main
+################################################################################
+if __name__ == "__main__":
+    # Create window.
+    win = create_window()
+    main()
+
+################################################################################
+################################################################################
