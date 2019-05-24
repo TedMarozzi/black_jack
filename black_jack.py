@@ -58,7 +58,7 @@ def draw_deck_border(deck):
 
 def draw_deck():
     # This is the back of the deck
-    deck = Image(Point(win.getWidth()/2, win.getHeight()/4), "deck.png")
+    deck = Image(Point(win.getWidth()/2, win.getHeight()/4), "images\deck.png")
     deck.draw(win)
     return deck
 
@@ -101,7 +101,7 @@ def move_card_down(player):
 
     border = 150
     back_of_card = Image(
-        Point(win.getWidth()/2, win.getHeight()/4), "deck.png")
+        Point(win.getWidth()/2, win.getHeight()/4), "images/deck.png")
     back_of_card.draw(win)
 
     # Moves card down depeneding on who is playing
@@ -233,10 +233,11 @@ def game_over_text():
 
 # Put all images directorys into a list
 def create_card_list():
-    card_images = listdir("./card_images")
-    images_dir = "./card_images/"
+    card_images = listdir("./images/card_images")
+    images_dir = "./images/card_images/"
 
     card_images = [images_dir + card for card in card_images]
+
     # Unsure if this is necessasry, but is a good safety measure
     card_images = sorted(card_images)
     return card_images
