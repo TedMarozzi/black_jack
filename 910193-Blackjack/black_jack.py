@@ -10,22 +10,25 @@
 ################################################################################
 
 # Graphical objects required
-from graphics import Image, GraphWin, Point, Rectangle, Text, color_rgb as colour_rgb
+from graphics import Image, GraphWin, Point, Rectangle, Text, update, color_rgb as colour_rgb
 from os import listdir
 # Used to randomise card selection
 import random
 # Used to kill program if no interaction after 300 seconds, prevents getting
 #   stuck into an unwanted infinite loop if user forgets to close program.
 import time
+
 ################################################################################
 # Parameters to adjust to ensure the code works on your machine.
 # Please adjust these values if the program is slow or if the window is the
 #   wrong size
 ################################################################################
+
+
 def parameters():
     MOVEMENT_SPEED = 1.5  # Default = 1.5
-    SCALING = 1 # Default = 1, not recommended less than 0.95 consider changing
-                #    your os scaling settings.
+    SCALING = 1  # Default = 1, not recommended less than 0.95 consider changing
+    #    your os scaling settings.
 
     return MOVEMENT_SPEED, SCALING
 
@@ -41,7 +44,7 @@ def create_window():
     height = int(1080*SCALING)
 
     # Create game window
-    win = GraphWin("Black Jack", width, height)
+    win = GraphWin("Black Jack", width, height, autoflush=False)
     win.setBackground(colour_rgb(135, 206, 250))
     return win
 
@@ -121,9 +124,11 @@ def move_card_down(player):
     if player == "ai":
         while back_of_card.getAnchor().getY() < WIN.getHeight() - border - 300:
             back_of_card.move(0, MOVEMENT_SPEED)
+            update()
     elif player == "human":
         while back_of_card.getAnchor().getY() < WIN.getHeight() - border:
             back_of_card.move(0, MOVEMENT_SPEED)
+            update()
 
     return back_of_card
 
@@ -138,9 +143,13 @@ def move_card_across(cards_in_hand, rand_card):
     if rand_card.getAnchor().getX() >= cards_in_hand * border:
         while rand_card.getAnchor().getX() > cards_in_hand * border:
             rand_card.move(-MOVEMENT_SPEED, 0)
+            update()
     else:
         while rand_card.getAnchor().getX() < cards_in_hand * border:
             rand_card.move(MOVEMENT_SPEED, 0)
+            update()
+
+    update()
 
 
 # Sets up the scores text to be later updated, player parameter determines who
@@ -148,15 +157,15 @@ def move_card_across(cards_in_hand, rand_card):
 def init_scores_text(player):
     if player == "ai":
         total_text = Text(Point(WIN.getWidth()*5/6, WIN.getHeight()/10),
-                          "Current value of dealer's cards:\n")
+                          "Current value of dealer's cards:\n0")
         total_text.setFace("helvetica")
         total_text.setSize(30)
         total_text.setStyle("bold")
         total_text.setTextColor("red")
         total_text.draw(WIN)
-    else:
+    elif player == "human":
         total_text = Text(Point(WIN.getWidth()/6, WIN.getHeight()/10),
-                          "Current value of your cards:\n")
+                          "Current value of your cards:\n0")
         total_text.setFace("helvetica")
         total_text.setSize(30)
         total_text.setStyle("bold")
@@ -197,7 +206,7 @@ def draw_hold_button():
 
 
 # Creates the text for the number of dealer wins
-def init_ai_wins_text(num_ai_wins):
+def ai_wins_text(num_ai_wins):
     ai_wins_point = Point(WIN.getWidth()*5/6, WIN.getHeight()/3 + 50)
     ai_wins_text = Text(ai_wins_point, "Dealer wins:\n" + str(num_ai_wins))
 
@@ -210,7 +219,7 @@ def init_ai_wins_text(num_ai_wins):
 
 
 # Creates the text for the number of dealer wins
-def init_player_wins_text(num_player_wins):
+def player_wins_text(num_player_wins):
     player_wins_point = Point(WIN.getWidth()/6, WIN.getHeight()/3 + 50)
     player_wins_text = (Text(player_wins_point, "Player wins:\n" +
                              str(num_player_wins)))
@@ -240,7 +249,7 @@ def style_text(text):
 
 def game_over(winner):
     center = Point(WIN.getWidth()/2, WIN.getHeight()/2)
-    if winner == "player":
+    if winner == "human":
         game_over_text = Text(center, "Game Over!\n\n\n\nCongratulations you won!\n\n"
                               + "Click to play again otherwise this window will terminate in 10 seconds")
         style_text(game_over_text)
@@ -254,11 +263,27 @@ def game_over(winner):
         game_over_text.draw(WIN)
 
 
+def set_up_graphics(num_player_wins, num_ai_wins, player_total, ai_total, player_total_text, ai_total_text):
+    deck = draw_deck()
+    draw_deck_border(deck)
+    draw_hold_button()
+
+    update_total_val(player_total_text, player_total, "human")
+    update_total_val(ai_total_text, ai_total, "ai")
+
+    draw_title()
+    player_wins_text(num_player_wins)
+    ai_wins_text(num_ai_wins)
+
+    return deck
+
+
 ###############################################################################
 # Functions responsible for black jack game mechanics
 ###############################################################################
 
 # Put all images directorys into a list
+
 def create_card_list():
     card_images = listdir("./images/card_images")
     images_dir = "./images/card_images/"
@@ -271,7 +296,7 @@ def create_card_list():
 
 
 # Checks if deck was clicked on returns bool
-def clicked_on_deck(click_point, deck):
+def is_deck_clicked_on(click_point, deck):
     x_min = deck.getAnchor().getX() - deck.getWidth()/2
     x_max = deck.getAnchor().getX() + deck.getWidth()/2
 
@@ -281,7 +306,7 @@ def clicked_on_deck(click_point, deck):
     top_left = Point(x_min, y_min)
     bottom_right = Point(x_max, y_max)
 
-    # Is a bool
+    # This return is a bool
     return is_button_clicked(click_point, top_left, bottom_right)
 
 
@@ -317,6 +342,7 @@ def get_card_val(rand_card_dir):
 
 # Updates the value of each players cards
 def update_total_val(total_text, total_val, player):
+
     if player == "ai":
         total_text.setText(
             "Current value of dealer's cards:\n" + str(total_val))
@@ -336,7 +362,7 @@ def ace_correction(total_val, val):
 # When a card is clicked this function runs, revealling and moving a card
 def card_clicked(click_point, cards_in_hand, total_text, total_val, deck, card_images):
 
-    if click_point != None and clicked_on_deck(click_point, deck) == True:
+    if click_point != None and is_deck_clicked_on(click_point, deck) == True:
 
         back_of_card = move_card_down("human")
         rand_card, val = reveal_card(card_images, back_of_card)
@@ -348,24 +374,23 @@ def card_clicked(click_point, cards_in_hand, total_text, total_val, deck, card_i
 
         total_val = ace_correction(total_val, val)
 
-        total_text = update_total_val(total_text, total_val, "player")
+        total_text = update_total_val(total_text, total_val, "human")
 
     return cards_in_hand, total_val
 
 # When its the players turn the function loops
 
 
-def player_loop(deck, card_images):
+def player_loop(deck, card_images, num_player_wins, num_ai_wins, player_total_text, ai_total_text):
 
     hold_a, hold_b = draw_hold_button()
 
-    total_val = 0
+    player_total = 0
     cards_in_hand = 0
-
-    total_text = init_scores_text("human")
-
-    time_last_clicked = time.time()
-    time_since_clicked = None
+    # Tic is the time of the start of the timer
+    tic = time.time()
+    # Tock is the time between tic and when toc is defined
+    toc = None
 
     # Several different things break this loop such as a time out or hold button
     #   pressed
@@ -376,23 +401,31 @@ def player_loop(deck, card_images):
 
         # Sets the time between clicks
         if click_point != None:
-            time_since_clicked = time.time() - time_last_clicked
+            toc = time.time() - tic
 
         # Time out after 300 seconds
-        if time_since_clicked != None and time_since_clicked > 300:
-            total_val = None
-            return total_val
+        if toc != None and toc > 300:
+            player_total = None
+            return player_total
 
         # Hold button
         if (click_point != None and
             is_button_clicked(click_point, hold_a, hold_b) == True
-                and total_val != 0):
-            return total_val
+                and player_total != 0):
+            return player_total
 
         # If player goes over 21 break loop, they lost
-        if total_val > 21:
+        if player_total > 21:
             center = Point(WIN.getWidth()/2, WIN.getHeight()/2)
-            draw_text_box(center)
+            clear(WIN)
+            ai_total = 0
+
+            player_total_text = init_scores_text("human")
+            ai_total_text = init_scores_text("ai")
+
+            deck = set_up_graphics(
+                num_player_wins, num_ai_wins, player_total, ai_total, player_total_text, ai_total_text)
+
             bust_text = Text(
                 center, "You went bust!\nClick anywhere to play again")
             bust_text = style_text(bust_text)
@@ -402,33 +435,32 @@ def player_loop(deck, card_images):
             WIN.getMouse()
             bust_text.undraw()
 
-            total_val = False
+            player_total = False
 
-            return total_val
+            return player_total
 
-        if total_text == 21:
-            return total_val
+        if player_total == 21:
+            WIN.getMouse()
+            return player_total
 
        # Checks if the deck is clicked and executes the card clicked routine
-        cards_in_hand, total_val = (card_clicked(click_point, cards_in_hand,
-                                                 total_text, total_val, deck,
-                                                 card_images))
+        cards_in_hand, player_total = (card_clicked(click_point, cards_in_hand,
+                                                    player_total_text, player_total, deck,
+                                                    card_images))
 
-    total_text.undraw()
+    player_total_text.undraw()
 
 
-def ai_loop(deck, card_images, player_val):
-    ai_val = 0
+def ai_loop(deck, card_images, player_total, num_player_wins, num_ai_wins, player_total_text, ai_total_text):
+    ai_total = 0
     cards_in_hand = 0
 
-    total_text = init_scores_text("ai")
-
-    if player_val == False:
+    if player_total == False:
         return False
 
     # While no one has won or lost this loop runs
-    while ai_val < 21 and ai_val <= player_val:
-        
+    while ai_total < 21 and ai_total <= player_total:
+
         back_of_card = move_card_down("ai")
         rand_card, val = reveal_card(card_images, back_of_card)
 
@@ -436,53 +468,51 @@ def ai_loop(deck, card_images, player_val):
         cards_in_hand += 1
 
         move_card_across(cards_in_hand, rand_card)
-        ai_val = ai_val + val
+        ai_total = ai_total + val
 
         # If an ace drawn makes player/dealer go bust the ace val is converted to 1
-        ai_val = ace_correction(ai_val, val)
+        ai_total = ace_correction(ai_total, val)
 
-        total_text = update_total_val(total_text, ai_val, "ai")
+        total_text = update_total_val(ai_total_text, ai_total, "ai")
 
         # Ai chooses to let game be a draw if equal scores over 14
-        if ai_val >= 15 and ai_val == player_val:
+        if ai_total >= 15 and ai_total == player_total:
             break
-
-
 
     center = Point(WIN.getWidth()/2, WIN.getHeight()/2)
 
     # Determins winner
-    did_player_win = determine_winner(center, total_text, player_val, ai_val)
+    did_player_win = determine_winner(center, total_text, player_total, ai_total, deck,
+                                      num_player_wins, num_ai_wins, player_total_text, ai_total_text)
 
     return did_player_win
 
-def draw_text_box(center):
-    top_left = Point(center.getX()-300, center.getY()-80)
-    bottom_right = Point(center.getX()+300, center.getY()+ 80)
-    text_box = Rectangle(top_left,bottom_right) 
-    text_box.setFill(colour_rgb(135, 206, 250))
-    text_box.setOutline(colour_rgb(135, 206, 250))
-    text_box.draw(WIN)
-
-
 
 # Determines and displayes winner
-def determine_winner(center, total_text, player_val, ai_val):
-    draw_text_box(center)
+def determine_winner(center, total_text, player_total, ai_total, deck,
+                     num_player_wins, num_ai_wins, player_total_text, ai_total_text):
 
-    if ai_val > player_val and ai_val <= 21: # Loss case
+    clear(WIN)
+
+    player_total_text = init_scores_text("human")
+    ai_total_text = init_scores_text("ai")
+
+    deck = set_up_graphics(num_player_wins, num_ai_wins,
+                           player_total, ai_total, player_total_text, ai_total_text)
+
+    if ai_total > player_total and ai_total <= 21:  # Loss case
         lost_text = Text(center, "You Lost\nClick anywhere to play again.")
 
         lost_text = style_text(lost_text)
         lost_text.setTextColor("red")
-        
+
         lost_text.draw(WIN)
         WIN.getMouse()
         lost_text.undraw()
         total_text.undraw()
 
         return False
-    elif player_val == ai_val: # Draw case
+    elif player_total == ai_total:  # Draw case
         draw_text = Text(center, "You drew\nClick anywhere to play again.")
         draw_text = style_text(draw_text)
         draw_text.draw(WIN)
@@ -491,11 +521,11 @@ def determine_winner(center, total_text, player_val, ai_val):
         draw_text.undraw()
         total_text.undraw()
         return
-    else: # Won case
+    else:  # Won case
         won_text = Text(center, "You won!\nClick anywhere to play again.")
         won_text = style_text(won_text)
         won_text.setTextColor("green")
-        
+
         won_text.draw(WIN)
         WIN.getMouse()
         won_text.undraw()
@@ -504,8 +534,8 @@ def determine_winner(center, total_text, player_val, ai_val):
 
 
 # Undraws everything in the graphics window
-def clear(win):
-    for item in win.items[:]:
+def clear(WIN):
+    for item in WIN.items[:]:
         item.undraw()
 
 
@@ -513,19 +543,27 @@ def clear(win):
 def best_of_five(num_player_wins, num_ai_wins):
 
     while num_ai_wins < 3 and num_player_wins < 3:
+        player_total_text = init_scores_text("human")
+        ai_total_text = init_scores_text("ai")
+        player_total = 0
+        ai_total = 0
+        deck = set_up_graphics(num_player_wins, num_ai_wins,
+                               player_total, ai_total, player_total_text, ai_total_text)
+
         card_images = create_card_list()
-        deck = draw_deck()
-        draw_deck_border(deck)
 
         draw_title()
-        init_scores_text("ai")
 
-        player_val = player_loop(deck, card_images)
+        deck = draw_deck()
 
-        if player_val == None:
+        player_total = player_loop(
+            deck, card_images, num_player_wins, num_ai_wins, player_total_text, ai_total_text)
+
+        if player_total == None:
             break
 
-        did_player_win = ai_loop(deck, card_images, player_val)
+        did_player_win = ai_loop(deck, card_images, player_total, num_player_wins,
+                                 num_ai_wins, player_total_text, ai_total_text)
 
         # Updates the scores
         if did_player_win == True:
@@ -537,13 +575,13 @@ def best_of_five(num_player_wins, num_ai_wins):
 
         clear(WIN)
 
-        init_player_wins_text(num_player_wins)
-        init_ai_wins_text(num_ai_wins)
+        player_wins_text(num_player_wins)
+        ai_wins_text(num_ai_wins)
 
     if num_ai_wins > num_player_wins:
         winner = "ai"
     elif num_player_wins > num_ai_wins:
-        winner = "player"
+        winner = "human"
 
     return winner
 
@@ -555,10 +593,6 @@ def main():
         num_ai_wins = 0
         num_player_wins = 0
 
-        # Initialise win count text to be updated as scores change
-        init_player_wins_text(num_player_wins)
-        init_ai_wins_text(num_ai_wins)
-
         # Start the best of five game loops
         winner = best_of_five(num_player_wins, num_ai_wins)
 
@@ -568,7 +602,7 @@ def main():
         # 10 second timer to restart
         tic = time.time()
         while time.time() - tic < 10:
-            
+
             WIN.checkMouse()
             # Gives pc time to register click.
             time.sleep(0.5)
@@ -591,4 +625,3 @@ if __name__ == "__main__":
     WIN.close()
 ################################################################################
 ################################################################################
-
