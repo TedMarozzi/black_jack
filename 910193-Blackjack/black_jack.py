@@ -13,37 +13,37 @@
 #
 # Features to be added:
 #   1) Red reset button sitting opposite the hold button +1 symmetry.
-#   2) A log file that automatically logs the overall number of player/dealer 
+#   2) A log file that automatically logs the overall number of player/dealer
 #       wins/losses.
-#   3) Add classes for cards, player and dealer, this will shorten the excessive 
+#   3) Add classes for cards, player and dealer, this will shorten the excessive
 #       amounts of parameters passed into each function.
+#       Also methods would be nice to move the card and down/across ect...
 
 ################################################################################
 #
 # Graphical objects required
 from graphics import Image, GraphWin, Point, Rectangle, Text, update, color_rgb\
-as colour_rgb
+    as colour_rgb
 from os import listdir
 # Used to randomise card selection
 import random
 # Used to kill program if no interaction after 300 seconds, prevents getting
 #   stuck into an unwanted infinite loop if user forgets to close program.
 import time
-#
+
 ################################################################################
-#
 # Parameters to adjust to ensure the code works on your machine.
 # Please adjust these values if the program is slow or if the window is the
-#   wrong size
-#
+#   wrong size.
 ################################################################################
 
 def parameters():
     MOVEMENT_SPEED = 1.5  # Default = 1.5
-    SCALING = 1  # Default = 1, not recommended less than 0.8 or greater than 1
+    SCALING = 1 # Default = 1, not recommended less than 0.8 or greater than 1
     # consider changing your os scaling settings.
 
     return MOVEMENT_SPEED, SCALING
+
 
 ################################################################################
 # Functions responsible for graphics
@@ -51,6 +51,8 @@ def parameters():
 
 # Creates the graphics window, which is accessed but not modified by any
 #   functions
+
+
 def create_window():
     width = int(1920*SCALING)
     height = int(1080*SCALING)
@@ -123,7 +125,7 @@ def draw_title():
     title.setSize(36)
     title.setStyle("bold")
     title.setTextColor(colour_rgb(255, 100,  0))
-    title.draw(WIN)
+    title.draw(WIN)  
 
 
 # Uses the random.choice() method to pick a rand card from a list and
@@ -148,6 +150,8 @@ def reveal_card(card_images, back_of_card):
     return rand_card, val
 
 # Moves cards down, some support for scaling.
+
+
 def move_card_down():
 
     border = 190
@@ -164,6 +168,8 @@ def move_card_down():
     return back_of_card
 
 # Moves cards left and right, some scaling support.
+
+
 def move_card_across(cards_in_hand, rand_card, player):
 
     border = 160
@@ -265,7 +271,7 @@ def player_wins_text(num_player_wins):
 
 # Updates the scores after each game
 def update_wins_text(player_wins_text, num_player_wins, ai_wins_text,
-                         num_ai_wins):
+                     num_ai_wins):
     ai_wins_text.setText("Dealer wins:\n" + str(num_ai_wins))
     player_wins_text.setText("Player wins:\n" + str(num_player_wins))
 
@@ -283,11 +289,11 @@ def style_text(text):
 def game_over(winner):
     center = Point(WIN.getWidth()/2, WIN.getHeight()/2)
     if winner == "human":
-        
+
         game_over_text = Text(center, "Game Over!")
         thanks_text = Text(center, " \n\n\n\n\nCongratulations you won!\n\n"
-                            + "Click to play again otherwise this window will"     
-                            + " terminate in 10 seconds")
+                           + "Click to play again otherwise this window will"
+                           + " terminate in 10 seconds")
         style_text(game_over_text)
         style_text(thanks_text)
         game_over_text.setSize(36)
@@ -301,18 +307,17 @@ def game_over(winner):
 
         game_over_text = Text(center, "Game Over!")
         thanks_text = Text(center, " \n\n\n\n\nYou lost!\n\n"
-                              + "Click to play again otherwise this window"
-                              +" will terminate in 10 seconds")
+                           + "Click to play again otherwise this window"
+                           + " will terminate in 10 seconds")
         style_text(game_over_text)
         game_over_text.setSize(36)
         style_text(thanks_text)
-        
+
         thanks_text.setTextColor("red")
         game_over_text.setTextColor("red")
         thanks_text.setTextColor("red")
         game_over_text.draw(WIN)
         thanks_text.draw(WIN)
-
 
 
 # When player goes bust
@@ -412,7 +417,7 @@ def ace_correction(total_val, val):
 
 # When a card is clicked this function runs, revealling and moving a card
 def card_clicked(click_point, cards_in_hand, total_text, total_val, deck,
-                    card_images):
+                 card_images):
 
     if click_point != None and is_deck_clicked_on(click_point, deck) == True:
 
@@ -433,7 +438,7 @@ def card_clicked(click_point, cards_in_hand, total_text, total_val, deck,
 
 # Determines and displayes winner
 def determine_winner(center, total_text, player_total, ai_total, deck,
-                     num_player_wins, num_ai_wins, player_total_text, 
+                     num_player_wins, num_ai_wins, player_total_text,
                      ai_total_text):
 
     if ai_total > player_total and ai_total <= 21:  # Loss case
@@ -470,7 +475,7 @@ def determine_winner(center, total_text, player_total, ai_total, deck,
 
 
 # When its the players turn the function loops
-def player_loop(deck, card_images, num_player_wins, num_ai_wins, 
+def player_loop(deck, card_images, num_player_wins, num_ai_wins,
                 player_total_text, ai_total_text):
 
     hold_a, hold_b = draw_hold_button()
@@ -519,17 +524,16 @@ def player_loop(deck, card_images, num_player_wins, num_ai_wins,
 
        # Checks if the deck is clicked and executes the card clicked routine
         cards_in_hand, player_total = card_clicked(click_point, cards_in_hand,
-                                                    player_total_text, 
-                                                    player_total, deck, 
-                                                    card_images)
-                                                    
+                                                   player_total_text,
+                                                   player_total, deck,
+                                                   card_images)
 
     player_total_text.undraw()
 
 # Run when ai is playing
 
 
-def ai_loop(deck, card_images, player_total, num_player_wins, num_ai_wins, 
+def ai_loop(deck, card_images, player_total, num_player_wins, num_ai_wins,
             player_total_text, ai_total_text):
     ai_total = 0
     cards_in_hand = 0
@@ -549,7 +553,7 @@ def ai_loop(deck, card_images, player_total, num_player_wins, num_ai_wins,
         move_card_across(cards_in_hand, rand_card, "ai")
         ai_total = ai_total + val
 
-        # If an ace drawn makes player/dealer go bust the ace val is converted 
+        # If an ace drawn makes player/dealer go bust the ace val is converted
         #   to 1
         ai_total = ace_correction(ai_total, val)
 
@@ -562,15 +566,15 @@ def ai_loop(deck, card_images, player_total, num_player_wins, num_ai_wins,
     center = Point(WIN.getWidth()/2, WIN.getHeight()/2)
 
     # Determines winner returns a bool
-    did_player_win = determine_winner(center, total_text, player_total, 
-                                        ai_total, deck, num_player_wins,
-                                        num_ai_wins, player_total_text, 
-                                        ai_total_text)
+    did_player_win = determine_winner(center, total_text, player_total,
+                                      ai_total, deck, num_player_wins,
+                                      num_ai_wins, player_total_text,
+                                      ai_total_text)
 
     return did_player_win
 
 
-# Lets users play best of five rounds per game within this the other two 
+# Lets users play best of five rounds per game within this the other two
 #   main functions of the game are called, player_loop and ai_loop
 def best_of_five(num_player_wins, num_ai_wins):
 
@@ -580,8 +584,8 @@ def best_of_five(num_player_wins, num_ai_wins):
         player_total = 0
         ai_total = 0
         deck = set_up_graphics(num_player_wins, num_ai_wins,
-                               player_total, ai_total, player_total_text, 
-                            ai_total_text)
+                               player_total, ai_total, player_total_text,
+                               ai_total_text)
 
         card_images = create_card_list()
 
@@ -589,15 +593,15 @@ def best_of_five(num_player_wins, num_ai_wins):
 
         deck = draw_deck()
 
-        player_total = player_loop(deck, card_images, num_player_wins, 
-                                    num_ai_wins, player_total_text, 
-                                    ai_total_text)
+        player_total = player_loop(deck, card_images, num_player_wins,
+                                   num_ai_wins, player_total_text,
+                                   ai_total_text)
 
         if player_total == None:
             break
 
-        did_player_win = ai_loop(deck, card_images, player_total, 
-                                 num_player_wins, num_ai_wins, 
+        did_player_win = ai_loop(deck, card_images, player_total,
+                                 num_player_wins, num_ai_wins,
                                  player_total_text, ai_total_text)
 
         # Updates the scores

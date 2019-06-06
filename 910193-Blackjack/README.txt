@@ -1,6 +1,7 @@
 Welcome to my Simple Black Jack game!
 
-Once unzipped, just natvigate to the source folder and run black_jack.py!
+Once unzipped, just natvigate to the source folder
+(910193-Blackjack) and run black_jack.py!
 
 Be sure to adjust the MOVEMENT_SPEED and SCALING parameters in the top of
 the source code to configure the game to your machine.
