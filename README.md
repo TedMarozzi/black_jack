@@ -1,7 +1,9 @@
-Welcome to my Simple Black Jack game!
+# Welcome to my Simple Black Jack game!
 
-Once unzipped, just natvigate to the source folder
+Just navigate to the source folder
 (910193-Blackjack) and run black_jack.py!
+
+<img src="https://github.com/ted-marozzi/black-jack/blob/master/preview/preview.png?raw=true" alt="Preview" width="600">
 
 Be sure to adjust the MOVEMENT_SPEED and SCALING parameters in the top of
 the source code to configure the game to your machine.
