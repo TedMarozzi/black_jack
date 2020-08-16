@@ -353,8 +353,8 @@ def update_total_val(total_text, total_val, player):
 
 # Put all images directorys into a list
 def create_card_list():
-    card_images = listdir("./images/card_images")
-    images_dir = "./images/card_images/"
+    card_images = listdir("./images/card-images")
+    images_dir = "./images/card-images/"
 
     card_images = [images_dir + card for card in card_images]
 
